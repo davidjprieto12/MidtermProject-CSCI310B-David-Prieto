@@ -10,4 +10,6 @@ export interface HangoutEvent {
     starts_at: string | null;
     status: EventStatus;
     created_at: string;
+    created_by: number | null;
+    max_attendees: number | null;
 }
