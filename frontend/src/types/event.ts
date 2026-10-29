@@ -13,3 +13,11 @@ export interface HangoutEvent {
     created_by: number | null;
     max_attendees: number | null;
 }
+
+export interface EventInput {
+    title: string;
+    description: string;
+    location: string;
+    starts_at: string | null;
+    max_attendees: number | null;
+}
