@@ -11,6 +11,9 @@ class Event(models.Model):
         ON_HOLD = "on_hold", "On Hold"
         CANCELLED = "cancelled", "Cancelled"
 
+    class Meta:
+        ordering = ["-created_at"]
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)

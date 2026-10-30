@@ -11,3 +11,6 @@ class EventSerializer(serializers.ModelSerializer):
         if value is not None and value < 1:
             raise serializers.ValidationError("Capacity must be at least 1.")
         return value
+
+class TransitionSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=Event.Status.choices)
