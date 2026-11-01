@@ -29,7 +29,7 @@ def change_status(event, new_status, user):
 
         if new_status == "confirmed" and not (event.starts_at and event.location):
             raise ValidationError(
-                {"status": {f"An event needs a date and a location before it can be confirmed."}}
+                {"status": ["An event needs a date and a location before it can be confirmed."]}
             )
 
         event.status = new_status
