@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
-from .models import ActivityLog, Event
+from .models import ActivityLog, Event, RSVP
 
 # Should remain identical to README's status table / section
 ALLOWED_TRANSACTIONS = {
@@ -13,6 +13,8 @@ ALLOWED_TRANSACTIONS = {
     "cancelled": ["idea"],
     "done": [],
 }
+
+RSVP_OPEN_STATUS = ("open", "confirmed")
 
 def change_status(event, new_status, user):
     # Move an event to a new status, enforcing the new workflow rules
@@ -42,3 +44,34 @@ def change_status(event, new_status, user):
             new_value=new_status,
         )
     return event
+
+def set_rsvp(event, user, response):
+    # Create or change a user's RSVP, enforcing status & capacity rules
+    with transaction.atomic():
+        # Lock the event row so two people can't both grab the last post
+        # NOTE: This project is built on SQLite, which doesn't enforce this. However, I would like to fork this and expand it later on, so this
+        # is perfect for if I would like to eventually use something like Postgres or MySQL in later, less primitive iterations
+        event = Event.objects.select_for_update().get(pk = event.pk)
+
+        if event.status not in RSVP_OPEN_STATUS:
+            raise ValidationError(
+                {"response": ["RSVPs are only open while an event is Open or Confirmed."]}
+            )
+
+        if response == RSVP.Response.GOING and event.max_attendees is not None:
+            # Exclude this user, so someone already going can resubmit when the event is full
+            going = (
+                RSVP.objects.filter(event=event, response=RSVP.Response.GOING)
+                .exclude(user=user)
+                .count()
+            )
+            if going >= event.max_attendees:
+                raise ValidationError({"response": ["This event is full."]})
+
+        rsvp, _ = RSVP.objects.update_or_create(
+            event=event, user=user, defaults={"response": response}
+        )
+    return rsvp
+
+def remove_rsvp(event, user):
+    RSVP.objects.filter(event=event, user=user).delete()
