@@ -1,5 +1,6 @@
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
+from rest_framework.test import APITestCase
 
 from accounts.models import User
 from .models import ActivityLog, Event, RSVP
@@ -74,3 +75,29 @@ class RsvpTests(TestCase):
         remove_rsvp(event, self.alex)
         self.assertEqual(RSVP.objects.filter(event=event).count(), 0)
 
+class EventEditTests(APITestCase):
+    def setUp(self):
+        self.alex = User.objects.create_user(username="alex", password="testpass123")
+        self.sam = User.objects.create_user(username="sam", password="testpass123")
+        self.event = Event.objects.create(
+            title="Pizza", status="open", max_attendees=5, created_by=self.alex
+        )
+        self.url = f"/api/events/{self.event.pk}/"
+
+    def test_creator_can_edit(self):
+        self.client.force_authenticate(self.alex)
+        response = self.client.patch(self.url, {"title": "Pizza night"}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["title"], "Pizza night")
+
+    def test_other_member_cannot_edit(self):
+        self.client.force_authenticate(self.sam)
+        response = self.client.patch(self.url, {"title": "Hijacked"}, format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_cannot_lower_capacity_below_going_count(self):
+        RSVP.objects.create(event=self.event, user=self.alex, response="going")
+        RSVP.objects.create(event=self.event, user=self.sam, response="going")
+        self.client.force_authenticate(self.alex)
+        response = self.client.patch(self.url, {"max_attendees": 1}, format="json")
+        self.assertEqual(response.status_code, 400)

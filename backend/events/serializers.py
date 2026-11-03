@@ -27,6 +27,19 @@ class EventSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Capacity must be at least 1.")
         return value
 
+    def validate_max_attendees(self, value):
+        if value is None:
+            return value
+        if value < 1:
+            raise serializers.ValidationError("Capacity must be at least 1.")
+        if self.instance is not None: # editing, not creating
+            going = self.instance.rsvps.filter(response="going").count()
+            if value < going:
+                raise serializers.ValidationError(
+                    f"{going} people are already going, so capacity can't be lower than that."
+                )
+        return value
+
 class TransitionSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=Event.Status.choices)
 
