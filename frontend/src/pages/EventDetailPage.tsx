@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { StatusSelect } from "../components/StatusSelect";
 import { RsvpButtons } from "../components/RsvpButtons";
 import { useChangeStatus, useEvent, useRsvp } from "../hooks/useEvents";
+import { useAuth } from "../hooks/useAuth";
 import { STATUS_LABELS } from "../types/status";
 
 export function EventDetailPage() {
@@ -10,6 +11,7 @@ export function EventDetailPage() {
   const { data: event, isLoading, isError } = useEvent(eventId);
   const changeStatus = useChangeStatus();
   const rsvp = useRsvp();
+  const { user } = useAuth();
 
   if (isLoading) return <p>Loading…</p>;
   if (isError || !event) {
@@ -21,10 +23,13 @@ export function EventDetailPage() {
     );
   }
 
+  const canEdit = user?.role === "admin" || event.created_by === user?.id;
+
   return (
     <main>
       <Link to="/">← Back to board</Link>
       <h1>{event.title}</h1>
+      {canEdit && <Link to={`/events/${event.id}/edit`}>Edit</Link>}
       <p>Status: {STATUS_LABELS[event.status]}</p>
       <StatusSelect
         eventId={event.id}

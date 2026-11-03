@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { parseApiError } from "../utils/errors";
 import { STATUS_LABELS } from "../types/status";
-import type { EventStatus, RsvpResponse } from "../types/event";
+import type { EventStatus, RsvpResponse, EventInput } from "../types/event";
 
 // Fetches the whole list
 export const useEvents = () =>
@@ -76,3 +76,17 @@ export const useRsvp = () => {
     },
   });
 };
+
+export const useUpdateEvent = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: EventInput }) =>
+            eventsApi.update(id, data),
+        onSuccess: (event) => {
+            queryClient.invalidateQueries({ queryKey: ["events"] });
+            queryClient.invalidateQueries({ queryKey: ["event", event.id] });
+            toast.success("Event updated");
+        },
+    });
+};
+

@@ -1,19 +1,26 @@
 import { useState, type SubmitEvent } from "react";
 import type { EventInput } from "../types/event";
+import { toLocalInput } from "../utils/dates";
 import type { FieldErrors } from "../utils/errors";
 
 interface EventFormProps {
   onSubmit: (data: EventInput) => void;
   submitting: boolean;
   fieldErrors: FieldErrors;
+  submitLabel?: string;
+  initialValues?: EventInput;
 }
 
-export function EventForm({ onSubmit, submitting, fieldErrors }: EventFormProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
-  const [startsAt, setStartsAt] = useState("");
-  const [maxAttendees, setMaxAttendees] = useState("");
+export function EventForm({ 
+  onSubmit, submitting, fieldErrors, submitLabel = "Save", initialValues, 
+}: EventFormProps) {
+  const [title, setTitle] = useState(initialValues?.title ?? "");
+  const [description, setDescription] = useState(initialValues?.description ?? "");
+  const [location, setLocation] = useState(initialValues?.location ?? "");
+  const [startsAt, setStartsAt] = useState(toLocalInput(initialValues?.starts_at ?? null));
+  const [maxAttendees, setMaxAttendees] = useState(
+    initialValues?.max_attendees?.toString() ?? ""
+  );
 
   const showErrors = (name: string) =>
     (fieldErrors[name] ?? []).map((m) => <p key={m} role="alert">{m}</p>);
@@ -50,7 +57,7 @@ export function EventForm({ onSubmit, submitting, fieldErrors }: EventFormProps)
       <input id="maxAttendees" type="number" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} />
       {showErrors("max_attendees")}
 
-      <button type="submit" disabled={submitting}>Create event</button>
+      <button type="submit" disabled={submitting}>{submitLabel}</button>
     </form>
   );
 }

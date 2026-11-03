@@ -17,4 +17,6 @@ export const eventsApi = {
         api.put<HangoutEvent>(`/events/${id}/rsvp/`, { response }).then((r) => r.data),
     removeRsvp: (id: number) =>
         api.delete<HangoutEvent>(`/events/${id}/rsvp/`).then((r) => r.data),
+    update: (id: number, data: EventInput) =>
+        api.patch<HangoutEvent>(`/events/${id}/`, data).then((r) => r.data),
 };
