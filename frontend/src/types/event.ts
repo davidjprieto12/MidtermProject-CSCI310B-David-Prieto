@@ -12,6 +12,8 @@ export interface HangoutEvent {
     created_at: string;
     created_by: number | null;
     max_attendees: number | null;
+    going_count: number;
+    my_rsvp: RsvpResponse | null;
 }
 
 export interface EventInput {
@@ -21,3 +23,5 @@ export interface EventInput {
     starts_at: string | null;
     max_attendees: number | null;
 }
+
+export type RsvpResponse = "going" | "maybe" | "no";

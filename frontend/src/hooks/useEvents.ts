@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { parseApiError } from "../utils/errors";
 import { STATUS_LABELS } from "../types/status";
-import type { EventStatus } from "../types/event";
+import type { EventStatus, RsvpResponse } from "../types/event";
 
 // Fetches the whole list
 export const useEvents = () =>
@@ -58,4 +58,21 @@ export const useChangeStatus = () => {
             }
         },
     });
+};
+
+export const useRsvp = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, response }: { id: number; response: RsvpResponse | null }) =>
+      response === null ? eventsApi.removeRsvp(id) : eventsApi.setRsvp(id, response),
+    onSuccess: (event) => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["event", event.id] });
+    },
+    onError: (error) => {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        toast.error(parseApiError(error).fields.response?.[0] ?? "Couldn't update your RSVP.");
+      }
+    },
+  });
 };

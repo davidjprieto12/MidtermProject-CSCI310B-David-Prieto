@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { StatusSelect } from "../components/StatusSelect";
-import { useChangeStatus, useEvent } from "../hooks/useEvents";
+import { RsvpButtons } from "../components/RsvpButtons";
+import { useChangeStatus, useEvent, useRsvp } from "../hooks/useEvents";
 import { STATUS_LABELS } from "../types/status";
 
 export function EventDetailPage() {
@@ -8,6 +9,7 @@ export function EventDetailPage() {
   const eventId = Number(id);
   const { data: event, isLoading, isError } = useEvent(eventId);
   const changeStatus = useChangeStatus();
+  const rsvp = useRsvp();
 
   if (isLoading) return <p>Loading…</p>;
   if (isError || !event) {
@@ -34,6 +36,14 @@ export function EventDetailPage() {
       {event.location && <p>Where: {event.location}</p>}
       {event.description && <p>{event.description}</p>}
       {event.max_attendees !== null && <p>Capacity: {event.max_attendees}</p>}
+      <RsvpButtons
+        status={event.status}
+        myRsvp={event.my_rsvp}
+        goingCount={event.going_count}
+        maxAttendees={event.max_attendees}
+        onChange={(response) => rsvp.mutate({ id: event.id, response })}
+        disabled={rsvp.isPending}
+      />
     </main>
   );
 }

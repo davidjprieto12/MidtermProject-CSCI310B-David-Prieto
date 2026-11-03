@@ -17,6 +17,7 @@ export function EventCard({ event, canDelete, onDelete, onStatusChange }: EventC
       </h3>
       <p>{event.starts_at ? new Date(event.starts_at).toLocaleString() : "Date TBD"}</p>
       {event.location && <p>{event.location}</p>}
+      <p>{event.going_count} going</p>
       <StatusSelect eventId={event.id} status={event.status} onChange={onStatusChange} />
       {canDelete && (
         <button type="button" onClick={() => onDelete(event.id)}>
