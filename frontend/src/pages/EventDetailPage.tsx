@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { StatusSelect } from "../components/StatusSelect";
 import { RsvpButtons } from "../components/RsvpButtons";
+import { CommentSection } from "../components/CommentSection";
 import { useChangeStatus, useEvent, useRsvp } from "../hooks/useEvents";
 import { useAuth } from "../hooks/useAuth";
 import { STATUS_LABELS } from "../types/status";
@@ -49,6 +50,7 @@ export function EventDetailPage() {
         onChange={(response) => rsvp.mutate({ id: event.id, response })}
         disabled={rsvp.isPending}
       />
+      <CommentSection eventId={event.id} />
     </main>
   );
 }
