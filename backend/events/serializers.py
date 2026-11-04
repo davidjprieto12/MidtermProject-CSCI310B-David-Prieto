@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Event, RSVP
+from .models import Event, RSVP, Comment
+from accounts.serializers import UserSerializer
 
 class EventSerializer(serializers.ModelSerializer):
     going_count = serializers.SerializerMethodField()
@@ -45,3 +46,11 @@ class TransitionSerializer(serializers.Serializer):
 
 class RSVPInputSerializer(serializers.Serializer):
     response = serializers.ChoiceField(choices=RSVP.Response.choices)
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "author", "body", "created_at"]
+        extra_kwargs = {"body": {"max_length": 1000}}

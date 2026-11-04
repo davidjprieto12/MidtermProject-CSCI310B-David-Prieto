@@ -101,3 +101,23 @@ class EventEditTests(APITestCase):
         self.client.force_authenticate(self.alex)
         response = self.client.patch(self.url, {"max_attendees": 1}, format="json")
         self.assertEqual(response.status_code, 400)
+
+class CommentApiTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="alex", password="testpass123")
+        self.event = Event.objects.create(title="Pizza", status="open")
+        self.url = f"/api/events/{self.event.pk}/comments/"
+
+    def test_requires_login(self):
+        self.assertEqual(self.client.get(self.url).status_code, 401)
+
+    def test_post_sets_author_from_logged_in_user(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(self.url, {"body": "I'll bring snacks"}, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["author"]["username"], "alex")
+
+    def test_blank_body_is_rejected(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(self.url, {"body": "   "}, format="json")
+        self.assertEqual(response.status_code, 400)

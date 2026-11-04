@@ -62,3 +62,14 @@ class RSVP(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["user", "event"], name="unique_rsvp_per_user_event"),
         ]
+
+class Comment(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
+    )
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]

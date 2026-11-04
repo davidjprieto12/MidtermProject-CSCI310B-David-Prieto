@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Count, OuterRef, Q, Subquery
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from . import services
 from .permissions import IsCreatorOrAdmin
 from .models import Event, RSVP
-from .serializers import EventSerializer, TransitionSerializer, RSVPInputSerializer
+from .serializers import EventSerializer, TransitionSerializer, RSVPInputSerializer, CommentSerializer
 
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
@@ -54,3 +54,14 @@ class EventViewSet(viewsets.ModelViewSet):
         else:
             services.remove_rsvp(event, request.user)
         return Response(self._fresh(event.pk))
+
+    @action(detail=True, methods=["get", "post"], permission_classes=[IsAuthenticated])
+    def comments(self, request, pk=None):
+        event = self.get_object()
+        if request.method == "POST":
+            serializer = CommentSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(event=event, author=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        queryset = event.comments.select_related("author")
+        return Response(CommentSerializer(queryset, many=True).data)
