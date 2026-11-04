@@ -5,12 +5,14 @@ from accounts.serializers import UserSerializer
 class EventSerializer(serializers.ModelSerializer):
     going_count = serializers.SerializerMethodField()
     my_rsvp = serializers.SerializerMethodField()
+    creator = UserSerializer(source="created_by", read_only=True)
+
 
     class Meta:
         model = Event
         fields = [
             "id", "title", "description", "location", "starts_at", "status",
-            "max_attendees", "created_by", "created_at", "going_count", "my_rsvp",
+            "max_attendees", "created_by", "creator", "created_at", "going_count", "my_rsvp",
         ]
         read_only_fields = ["created_by", "status"]
 

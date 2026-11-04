@@ -1,4 +1,7 @@
 from django.test import TestCase
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
+
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APITestCase
 
@@ -121,3 +124,28 @@ class CommentApiTests(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url, {"body": "   "}, format="json")
         self.assertEqual(response.status_code, 400)
+
+class EventListQueryTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="alex", password="testpass123")
+        self.client.force_authenticate(self.user)
+
+    def count_list_queries(self):
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.get("/api/events/")
+        self.assertEqual(response.status_code, 200)
+        return len(ctx)
+
+    def test_query_count_does_not_grow_with_events(self):
+        for i in range(3):
+            Event.objects.create(title=f"Event {i}", created_by=self.user)
+        few = self.count_list_queries()
+        for i in range(10):
+            Event.objects.create(title=f"More {i}", created_by=self.user)
+        many = self.count_list_queries()
+        self.assertEqual(few, many)
+
+    def test_list_includes_creator_name(self):
+        Event.objects.create(title="Pizza", created_by=self.user)
+        response = self.client.get("/api/events/")
+        self.assertEqual(response.data[0]["creator"]["username"], "alex")

@@ -20,7 +20,8 @@ class EventViewSet(viewsets.ModelViewSet):
             event=OuterRef("pk"), user=self.request.user
         ).values("response")[:1]
         return (
-            Event.objects.annotate(
+            Event.objects.select_related("created_by")
+            .annotate(
                 going_count=Count("rsvps", filter=Q(rsvps__response="going")),
                 my_rsvp=Subquery(my_rsvp)
             )
