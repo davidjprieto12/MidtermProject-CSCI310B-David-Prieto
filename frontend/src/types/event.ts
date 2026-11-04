@@ -1,3 +1,5 @@
+import type { User } from "./auth";
+
 export type EventStatus = 
     | "idea" | "planning" | "open" | "confirmed"
     | "done" | "on_hold" | "cancelled";
@@ -11,6 +13,7 @@ export interface HangoutEvent {
     status: EventStatus;
     created_at: string;
     created_by: number | null;
+    creator: User | null;
     max_attendees: number | null;
     going_count: number;
     my_rsvp: RsvpResponse | null;

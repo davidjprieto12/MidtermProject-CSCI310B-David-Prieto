@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { StatusSelect } from "./StatusSelect";
 import type { EventStatus, HangoutEvent } from "../types/event";  
+import { displayName } from "../utils/users";
 
 interface EventCardProps {
     event: HangoutEvent;
@@ -15,6 +16,7 @@ export function EventCard({ event, canDelete, onDelete, onStatusChange }: EventC
       <h3>
         <Link to={`/events/${event.id}`}>{event.title}</Link>
       </h3>
+      {event.creator && <p>Created by {displayName(event.creator)}</p>}
       <p>{event.starts_at ? new Date(event.starts_at).toLocaleString() : "Date TBD"}</p>
       {event.location && <p>{event.location}</p>}
       <p>{event.going_count} going</p>

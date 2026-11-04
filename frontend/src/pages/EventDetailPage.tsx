@@ -5,6 +5,7 @@ import { CommentSection } from "../components/CommentSection";
 import { useChangeStatus, useEvent, useRsvp } from "../hooks/useEvents";
 import { useAuth } from "../hooks/useAuth";
 import { STATUS_LABELS } from "../types/status";
+import { displayName } from "../utils/users";
 
 export function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +31,7 @@ export function EventDetailPage() {
     <main>
       <Link to="/">← Back to board</Link>
       <h1>{event.title}</h1>
+      {event.creator && <p>Created by {displayName(event.creator)}</p>}
       {canEdit && <Link to={`/events/${event.id}/edit`}>Edit</Link>}
       <p>Status: {STATUS_LABELS[event.status]}</p>
       <StatusSelect
