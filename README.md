@@ -38,7 +38,24 @@ Hangout Board is a full-stack web application meant to address the least fun par
     > npm run dev
     - Runs on: http://locahost:5173
     
-    ### TODO: Add join code & admin account instructions here after implementing said features
+- **Account Creation:**
+    - Upon reaching the front page, click the "Need an account? Register" button below the login prompt
+    - Enter the following fields:
+        - Username: the username used for login
+        - Display Name: how users will see you on the platform, e.g. "Created by (Display Name)"
+        - Join Code: the code for the board (given in .env), in our case "friends2026"
+        - Password: the password used for login
+
+- **Creating an Admin Account:**
+    - Admin accounts are a developer tool, not a feature currently available to be executed by users on the site
+    - After creating an account, run the following commmands in a new terminal (or in the backend venv Terminal 1 after killing the server process)
+    > ```bash
+    > cd backend
+    > venv\Scripts\activate                # macOS/Linux: source venv/bin/activate
+    > python manage.py shell
+    > from accounts.models import User
+    > u = User.objects.get(username="(enter username here)"); u.role = "admin"; u.save()
+    > exit()
 
 
 ## Data Model
@@ -61,5 +78,32 @@ Hangout Board is a full-stack web application meant to address the least fun par
 
 
 ## Rubric Map
-- 
-    ### TODO: Upon completing the project, map each part of the rubric to its corresponding parts of the project repository
+
+
+### 1. Django Backend Architecture & Database
+* Implementation of Django models, migrations, and model relationships: [/backend/events](/backend/events) contains the event, RSVP, and comment models and their migrations; [/backend/accounts](/backend/accounts) contains account models and migrations.
+* Efficient query design: [/backend/events](/backend/events) uses annotated and related querysets for event lists and related activity/comments.
+* Solid input validation on models/serializers: [/backend/events](/backend/events) and [/backend/accounts](/backend/accounts) define serializers that validate incoming API data.
+
+### 2. API Design & Authentication
+* Proper implementation of REST with DRF: [/backend/events](/backend/events) and [/backend/accounts](/backend/accounts) define API views, serializers, and URL routes.
+* Secure authentication & permissions checking: [/backend/accounts](/backend/accounts) handles authentication; [/backend/events](/backend/events) applies authenticated access and creator/admin permissions.
+
+### 3. React & TypeScript Architecture
+* Component tree design / separation of smart and dumb components: [/frontend/src/pages](/frontend/src/pages) composes page-level views, while [/frontend/src/components](/frontend/src/components) holds reusable UI components.
+* No use of "any" keyword; adherence to TS types/interfaces: [/frontend/src/types](/frontend/src/types) centralizes shared interfaces and types used by [/frontend/src](/frontend/src).
+
+### 4. State Management & API Client
+* Efficient state management: [/frontend/src/context](/frontend/src/context) provides authentication state, and [/frontend/src/hooks](/frontend/src/hooks) manages server state with React Query.
+* Asynchronous network layering & custom React Query hooks: [/frontend/src/api](/frontend/src/api) separates network calls; [/frontend/src/hooks](/frontend/src/hooks) wraps them in query and mutation hooks.
+
+### 5. Error Handling, UI, & Resilience
+* Front-end handling of API error codes: [/frontend/src/api](/frontend/src/api) handles common HTTP failures, and [/frontend/src/utils](/frontend/src/utils) parses API errors for forms and actions.
+* Back-end protection and database transaction management: [/backend/events](/backend/events) validates workflow rules and uses atomic transactions for status changes, activity logs, and RSVPs.
+* Clean layout: [/frontend/src/components](/frontend/src/components), [/frontend/src/pages](/frontend/src/pages), and [/frontend/src](/frontend/src) styles support a consistent UI.
+
+### 6. Project Organization & Git Workflow
+* Logical codebase separation: [/backend](/backend) and [/frontend](/frontend) separate the full-stack, with subfolders in each organizing parts of each side
+* Proper code formatting throughout each file
+* .gitignore and .env config: .gitignore ensures no internal .env or db.sqlite3 files are comitted, [/backend/.env.example](/backend/.env.example) and [/frontend/.env.example](/frontend/.env.example) provide templates for the user's individual .env files as not to expose JWT verification / endpoint / sign-in variables
+* Consistent and clean commits showing steady development leading up to submission
