@@ -1,5 +1,5 @@
 from django.db import transaction
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 
 from .models import ActivityLog, Event, RSVP
 
@@ -16,12 +16,19 @@ ALLOWED_TRANSACTIONS = {
 
 RSVP_OPEN_STATUS = ("open", "confirmed")
 
+def _lock_event(event):
+    # Reread the event with a row low, or raise a clean 401 if it was deleted meanwhile
+    try:
+        return Event.objects.select_for_update().get(pk=event.pk)
+    except Event.DoesNotExist:
+        raise NotFound("This event no longer exists.")
+
 def change_status(event, new_status, user):
     # Move an event to a new status, enforcing the new workflow rules
     # The status change and activity log entry are saved together | not at all
     
     with transaction.atomic():
-        event = Event.objects.select_for_update().get(pk=event.pk)
+        event = _lock_event(event)
         old_status = event.status
 
         if new_status not in ALLOWED_TRANSACTIONS[old_status]:
@@ -51,7 +58,7 @@ def set_rsvp(event, user, response):
         # Lock the event row so two people can't both grab the last post
         # NOTE: This project is built on SQLite, which doesn't enforce this. However, I would like to fork this and expand it later on, so this
         # is perfect for if I would like to eventually use something like Postgres or MySQL in later, less primitive iterations
-        event = Event.objects.select_for_update().get(pk = event.pk)
+        event = _lock_event(event)
 
         if event.status not in RSVP_OPEN_STATUS:
             raise ValidationError(

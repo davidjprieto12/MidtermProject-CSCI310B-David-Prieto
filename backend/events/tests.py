@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.test import APITestCase
 
 from accounts.models import User
@@ -168,3 +168,19 @@ class ActivityApiTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         actions = sorted(entry["action"] for entry in response.data)
         self.assertEqual(actions, ["created", "status_changed"])
+
+class StaleEventTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="alex", password="testpass123")
+
+    def test_status_change_on_deleted_event_raises_not_found(self):
+        stale = Event.objects.create(title="Pizza", status="idea")
+        Event.objects.filter(pk=stale.pk).delete()  # deleted after the view loaded it
+        with self.assertRaises(NotFound):
+            change_status(stale, "planning", self.user)
+
+    def test_rsvp_on_deleted_event_raises_not_found(self):
+        stale = Event.objects.create(title="Pizza", status="open")
+        Event.objects.filter(pk=stale.pk).delete()
+        with self.assertRaises(NotFound):
+            set_rsvp(stale, self.user, "going")
