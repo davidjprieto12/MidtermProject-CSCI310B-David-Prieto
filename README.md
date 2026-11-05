@@ -62,9 +62,9 @@ Hangout Board is a full-stack web application meant to address the least fun par
 - **User (accounts):**    username, display_name, role (admin | member)
 - **Event:**              title, description, location, starts_at (nullable), status, max_attendees (nullable), created_at, created_by -> User
 - **ActivityLog:**        event -> Event, actor -> User, action, old_value, new_value, created_at
-- **RSVP (planned):**     user -> User, event -> Event, response (going|maybe|no)
+- **RSVP:**     user -> User, event -> Event, response (going|maybe|no)
 (also makes Event <-> User many-to-many through RSVP)
-- **Comment (planned):**  event -> Event, author -> User, body, created_at
+- **Comment:**  event -> Event, author -> User, body, created_at
 
 ## Status Workflow
 ### Statuses are restricted from how they may shift from one to another.
