@@ -39,7 +39,7 @@ def change_status(event, new_status, user):
         ActivityLog.objects.create(
             event=event,
             actor=user,
-            action="status.changed",
+            action="status_changed",
             old_value=old_status,
             new_value=new_status,
         )

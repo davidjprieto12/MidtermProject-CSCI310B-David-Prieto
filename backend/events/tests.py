@@ -149,3 +149,22 @@ class EventListQueryTests(APITestCase):
         Event.objects.create(title="Pizza", created_by=self.user)
         response = self.client.get("/api/events/")
         self.assertEqual(response.data[0]["creator"]["username"], "alex")
+
+class ActivityApiTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="alex", password="testpass123")
+        self.client.force_authenticate(self.user)
+
+    def test_create_and_status_change_are_both_logged(self):
+        created = self.client.post("/api/events/", {"title": "Pizza"}, format="json")
+        self.assertEqual(created.status_code, 201)
+        self.assertEqual(created.data["creator"]["username"], "alex")
+
+        event_id = created.data["id"]
+        self.client.post(
+            f"/api/events/{event_id}/transition/", {"status": "planning"}, format="json"
+        )
+        response = self.client.get(f"/api/events/{event_id}/activity/")
+        self.assertEqual(response.status_code, 200)
+        actions = sorted(entry["action"] for entry in response.data)
+        self.assertEqual(actions, ["created", "status_changed"])

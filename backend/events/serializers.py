@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, RSVP, Comment
+from .models import Event, RSVP, Comment, ActivityLog
 from accounts.serializers import UserSerializer
 
 class EventSerializer(serializers.ModelSerializer):
@@ -56,3 +56,10 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ["id", "author", "body", "created_at"]
         extra_kwargs = {"body": {"max_length": 1000}}
+
+class ActivityLogSerializer(serializers.ModelSerializer):
+    actor = UserSerializer(read_only=True)
+
+    class Meta:
+        model = ActivityLog
+        fields = ["id", "actor", "action", "old_value", "new_value", "created_at"]

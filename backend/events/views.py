@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.db.models import Count, OuterRef, Q, Subquery
+from django.db import transaction
 
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
@@ -8,8 +9,8 @@ from rest_framework.response import Response
 
 from . import services
 from .permissions import IsCreatorOrAdmin
-from .models import Event, RSVP
-from .serializers import EventSerializer, TransitionSerializer, RSVPInputSerializer, CommentSerializer
+from .models import Event, RSVP, ActivityLog
+from .serializers import EventSerializer, TransitionSerializer, RSVPInputSerializer, CommentSerializer, ActivityLogSerializer
 
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
@@ -29,7 +30,14 @@ class EventViewSet(viewsets.ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        with transaction.atomic():
+            event = serializer.save(created_by=self.request.user)
+            ActivityLog.objects.create(
+                event=event,
+                actor=self.request.user,
+                action="created",
+                new_value=event.status,
+            )
 
     def _fresh(self, pk):
         # Reread through get_queryset so the response has the annotations
@@ -55,6 +63,12 @@ class EventViewSet(viewsets.ModelViewSet):
         else:
             services.remove_rsvp(event, request.user)
         return Response(self._fresh(event.pk))
+
+    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
+    def activity(self, request, pk=None):
+        event = self.get_object()
+        entries = event.activity.select_related("actor")
+        return Response(ActivityLogSerializer(entries, many=True).data)
 
     @action(detail=True, methods=["get", "post"], permission_classes=[IsAuthenticated])
     def comments(self, request, pk=None):
