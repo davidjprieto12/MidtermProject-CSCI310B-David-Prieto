@@ -25,3 +25,8 @@ export const ALLOWED_TRANSITIONS: Record<EventStatus, EventStatus[]> = {
   cancelled: ["idea"],
   done: [],
 };
+
+export function statusLabel(value: string): string {
+    const match = STATUS_ORDER.find((s) => s === value);
+    return match ? STATUS_LABELS[match] : value;
+}

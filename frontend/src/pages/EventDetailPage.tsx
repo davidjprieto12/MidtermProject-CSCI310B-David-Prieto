@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { StatusSelect } from "../components/StatusSelect";
 import { RsvpButtons } from "../components/RsvpButtons";
 import { CommentSection } from "../components/CommentSection";
+import { ActivitySection } from "../components/ActivitySection";
 import { useChangeStatus, useEvent, useRsvp } from "../hooks/useEvents";
 import { useAuth } from "../hooks/useAuth";
 import { STATUS_LABELS } from "../types/status";
@@ -53,6 +54,7 @@ export function EventDetailPage() {
         disabled={rsvp.isPending}
       />
       <CommentSection eventId={event.id} />
+      <ActivitySection eventId={event.id} />
     </main>
   );
 }

@@ -48,6 +48,7 @@ export const useChangeStatus = () => {
         onSuccess: (event) => {
             queryClient.invalidateQueries({ queryKey: ["events"] });
             queryClient.invalidateQueries({ queryKey: ["event", event.id] });
+            queryClient.invalidateQueries({ queryKey: ["activity", event.id] });
             toast.success(`Moved to ${STATUS_LABELS[event.status]}`);
         },
         onError: (error) => {
