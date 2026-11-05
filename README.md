@@ -19,6 +19,7 @@ Hangout Board is a full-stack web application meant to address the least fun par
     - **react-hot-toast:** For pop-ups related to successes and errors
 
 ## Setup
+- **Prerequisites:** Python 3.12 or newer (developed on 3.14) and Node.js (current LTS).
 - **Back End (Terminal 1):**
     > ```bash
     > cd backend
@@ -28,7 +29,7 @@ Hangout Board is a full-stack web application meant to address the least fun par
     > copy .env.example .env               # macOS/Linux: cp .env.example .env
     > python manage.py migrate
     > python manage.py runserver
-    >```
+    > ```
     - Runs on http://localhost:8000
 - **Front End (Terminal 2):**
     >```bash
@@ -36,7 +37,8 @@ Hangout Board is a full-stack web application meant to address the least fun par
     > npm install
     > copy .env.example .env               # macOS/Linux: cp .env.example .env
     > npm run dev
-    - Runs on: http://locahost:5173
+    > ```
+    - Runs on: http://localhost:5173
     
 - **Account Creation:**
     - Upon reaching the front page, click the "Need an account? Register" button below the login prompt
@@ -48,7 +50,7 @@ Hangout Board is a full-stack web application meant to address the least fun par
 
 - **Creating an Admin Account:**
     - Admin accounts are a developer tool, not a feature currently available to be executed by users on the site
-    - After creating an account, run the following commmands in a new terminal (or in the backend venv Terminal 1 after killing the server process)
+    - After creating an account, run the following commands in a new terminal (or in the backend venv Terminal 1 after killing the server process)
     > ```bash
     > cd backend
     > venv\Scripts\activate                # macOS/Linux: source venv/bin/activate
@@ -56,7 +58,16 @@ Hangout Board is a full-stack web application meant to address the least fun par
     > from accounts.models import User
     > u = User.objects.get(username="(enter username here)"); u.role = "admin"; u.save()
     > exit()
+    > ```
 
+- **Optional: Seed Data:**
+    - TODO: Add instructions related to seed data / generated logins here
+
+## Tests
+> ```bash
+> cd backend
+> python manage.py test events
+> ```
 
 ## Data Model
 - **User (accounts):**    username, display_name, role (admin | member)
@@ -76,10 +87,24 @@ Hangout Board is a full-stack web application meant to address the least fun par
 - **Cancelled** => Idea (If Reopening)
 - **Done** => None (Final Status)
 
+### Additional Event Detail Rules
+- An event can only be moved to Confirmed if it has a date and a location.
+- RSVPs are only accepted while an event is Open or Confirmed.
+- If an event has a capacity, new "Going" RSVPs are rejected once it is full.
+- Any logged-in member can change an event's status. Only the creator or an admin can edit or delete an event.
+
+## Design Notes
+- Status changes and RSVPs run inside `transaction.atomic()`; the status change and its `ActivityLog` row are saved together or not at all.
+- RSVP capacity and status changes use `select_for_update()` to prevent overbooking under concurrent requests. SQLite ignores the row lock (it serializes writes at the database level), but the code is written for a database like PostgreSQL where the lock is enforced.
+- The event list uses `select_related` and annotations so its query count stays flat as events are added (covered by a test in `backend/events/tests.py`).
+
+## Known Limitations
+- Access tokens last 12 hours and there is no refresh flow.
+- Tokens are stored in `localStorage`, which is fine for a class project but not for production.
+- The event list is not paginated.
+
 
 ## Rubric Map
-
-
 ### 1. Django Backend Architecture & Database
 * Implementation of Django models, migrations, and model relationships: [/backend/events](/backend/events) contains the event, RSVP, and comment models and their migrations; [/backend/accounts](/backend/accounts) contains account models and migrations.
 * Efficient query design: [/backend/events](/backend/events) uses annotated and related querysets for event lists and related activity/comments.
