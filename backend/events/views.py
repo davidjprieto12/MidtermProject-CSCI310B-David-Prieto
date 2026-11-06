@@ -12,9 +12,18 @@ from .permissions import IsCreatorOrAdmin
 from .models import Event, RSVP, ActivityLog
 from .serializers import EventSerializer, TransitionSerializer, RSVPInputSerializer, CommentSerializer, ActivityLogSerializer
 
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
+
+from .filters import EventFilter
+
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticated, IsCreatorOrAdmin]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = EventFilter
+    search_fields = ["title", "description", "location"]
+    ordering_fields = ["created_at", "starts_at"]
 
     def get_queryset(self):
         my_rsvp = RSVP.objects.filter(

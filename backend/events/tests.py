@@ -210,3 +210,37 @@ class SeedDataTests(TestCase):
         admin = User.objects.get(username="demo_admin")
         self.assertTrue(admin.check_password("demo1234"))
         self.assertEqual(admin.role, "admin")
+
+class EventFilterTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="alex", password="testpass123")
+        self.client.force_authenticate(self.user)
+        Event.objects.create(title="Pizza night", status="idea", location="Alex's place")
+        Event.objects.create(title="Beach day", status="open", description="Bring sunscreen")
+        Event.objects.create(title="Board games", status="open", location="Downtown")
+
+    def titles(self, **params):
+        response = self.client.get("/api/events/", params)
+        self.assertEqual(response.status_code, 200)
+        return sorted(event["title"] for event in response.data)
+
+    def test_no_params_returns_everything(self):
+        self.assertEqual(len(self.titles()), 3)
+
+    def test_filter_by_status(self):
+        self.assertEqual(self.titles(status="open"), ["Beach day", "Board games"])
+
+    def test_search_is_case_insensitive(self):
+        self.assertEqual(self.titles(search="PIZZA"), ["Pizza night"])
+
+    def test_search_covers_description_and_location(self):
+        self.assertEqual(self.titles(search="sunscreen"), ["Beach day"])
+        self.assertEqual(self.titles(search="downtown"), ["Board games"])
+
+    def test_status_and_search_combine(self):
+        self.assertEqual(self.titles(status="open", search="beach"), ["Beach day"])
+        self.assertEqual(self.titles(status="idea", search="beach"), [])
+
+    def test_invalid_status_returns_400(self):
+        response = self.client.get("/api/events/", {"status": "nonsense"})
+        self.assertEqual(response.status_code, 400)
