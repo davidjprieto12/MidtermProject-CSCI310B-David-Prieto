@@ -48,7 +48,7 @@ Hangout Board is a full-stack web application meant to address the least fun par
         - Join Code: the code for the board (given in .env), in our case "friends2026"
         - Password: the password used for login
 
-- **Creating an Admin Account:**
+- **Creating an Admin Account / Seed Data:**
     - Admin accounts are a developer tool, not a feature currently available to be executed by users on the site
     - After creating an account, run the following commands in a new terminal (or in the backend venv Terminal 1 after killing the server process)
     > ```bash
@@ -57,11 +57,28 @@ Hangout Board is a full-stack web application meant to address the least fun par
     > python manage.py shell
     > from accounts.models import User
     > u = User.objects.get(username="(enter username here)"); u.role = "admin"; u.save()
+    > ```
+    - Optionally, you may also add artificial / seed data using the following command:
+    >```bash
+    > python manage.py seed_data
+    >```
+    - **Demo Accounts (after running seed_data):**
+    - `demo_admin` (admin), `demo_alex`, `demo_sam`, `demo_jordan` (members)
+    - Password for all: `demo1234` (for class demo use only)
+    - Re-running `seed_data` resets the demo events back to their starting state
+
+    - To exit:
+    >```bash
     > exit()
     > ```
 
 - **Optional: Seed Data:**
-    - TODO: Add instructions related to seed data / generated logins here
+    - Here is a developer function that I implemented to add artificial data to the database, so that you can test with it instead of having to make the scenarios
+    > ```bash
+    > cd backend
+    > venv\Scripts\activate                # macOS/Linux: source venv/bin/activate
+    > python manage.py seed_data
+    > ```
 
 ## Tests
 > ```bash

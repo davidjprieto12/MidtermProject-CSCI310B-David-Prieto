@@ -9,6 +9,9 @@ from accounts.models import User
 from .models import ActivityLog, Event, RSVP
 from .services import change_status, remove_rsvp, set_rsvp
 
+from io import StringIO
+from django.core.management import call_command
+
 class ChangeStatusTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="alex", password="testpass123")
@@ -184,3 +187,26 @@ class StaleEventTests(TestCase):
         Event.objects.filter(pk=stale.pk).delete()
         with self.assertRaises(NotFound):
             set_rsvp(stale, self.user, "going")
+
+class SeedDataTests(TestCase):
+    def run_seed(self):
+        call_command("seed_data", stdout=StringIO())
+
+    def test_creates_users_and_events_in_every_status(self):
+        self.run_seed()
+        self.assertEqual(User.objects.filter(username__startswith="demo_").count(), 4)
+        statuses = set(Event.objects.values_list("status", flat=True))
+        self.assertEqual(statuses, {value for value, _ in Event.Status.choices})
+
+    def test_is_safe_to_run_twice(self):
+        self.run_seed()
+        first = Event.objects.count()
+        self.run_seed()
+        self.assertEqual(Event.objects.count(), first)
+        self.assertEqual(User.objects.filter(username__startswith="demo_").count(), 4)
+
+    def test_demo_login_works(self):
+        self.run_seed()
+        admin = User.objects.get(username="demo_admin")
+        self.assertTrue(admin.check_password("demo1234"))
+        self.assertEqual(admin.role, "admin")
