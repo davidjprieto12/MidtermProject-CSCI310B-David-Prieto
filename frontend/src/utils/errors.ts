@@ -24,3 +24,6 @@ export function parseApiError(error: unknown): ParsedError {
     return { message: "Something went wrong.", fields: {} };
 }
 
+export function isNotFound(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response?.status === 404;
+}

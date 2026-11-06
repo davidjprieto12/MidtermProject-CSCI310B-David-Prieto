@@ -6,7 +6,7 @@ import type { EventStatus, HangoutEvent } from "../types/event";
 
 export function EventsPage() {
     const { user, logout } = useAuth();
-    const { data, isLoading, isError } = useEvents();
+    const { data, isLoading, isError, refetch } = useEvents();
     const deleteEvent = useDeleteEvent();
     const changeStatus = useChangeStatus();
 
@@ -35,7 +35,14 @@ export function EventsPage() {
       </header>
 
       {isLoading && <p>Loading…</p>}
-      {isError && <p role="alert">Couldn't load events.</p>}
+      {isError && (
+        <div role="alert">
+          <p>Couldn't load events.</p>
+          <button type="button" onClick={() => refetch()}>
+            Try again
+          </button>
+        </div>
+      )}
       {data && (
         <Board
           events={data}

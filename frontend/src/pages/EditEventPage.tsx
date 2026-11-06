@@ -4,22 +4,26 @@ import { EventForm } from "../components/EventForm";
 import { useAuth } from "../hooks/useAuth";
 import { useEvent, useUpdateEvent } from "../hooks/useEvents";
 import type { EventInput } from "../types/event";
-import { parseApiError, type FieldErrors } from "../utils/errors";
+import { parseApiError, type FieldErrors, isNotFound } from "../utils/errors";
+import { NotFoundPage } from "../pages/NotFoundPage";
 
 export function EditEventPage() {
   const { id } = useParams<{ id: string }>();
   const eventId = Number(id);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: event, isLoading, isError } = useEvent(eventId);
+  const { data: event, error, isLoading, isError } = useEvent(eventId);
   const updateEvent = useUpdateEvent();
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   if (isLoading) return <p>Loading…</p>;
+  if (!Number.isFinite(eventId) || (isError && isNotFound(error))) {
+    return <NotFoundPage message="That event doesn't exist." />;
+  }
   if (isError || !event) {
     return (
       <main>
-        <p role="alert">Event not found.</p>
+        <p role="alert">Couldn't load this event.</p>
         <Link to="/">Back to board</Link>
       </main>
     );

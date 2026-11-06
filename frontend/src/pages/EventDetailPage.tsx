@@ -7,20 +7,25 @@ import { useChangeStatus, useEvent, useRsvp } from "../hooks/useEvents";
 import { useAuth } from "../hooks/useAuth";
 import { STATUS_LABELS } from "../types/status";
 import { displayName } from "../utils/users";
+import { isNotFound } from "../utils/errors";
+import { NotFoundPage } from "../pages/NotFoundPage";   
 
 export function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const eventId = Number(id);
-  const { data: event, isLoading, isError } = useEvent(eventId);
+  const { data: event, error, isLoading, isError } = useEvent(eventId);
   const changeStatus = useChangeStatus();
   const rsvp = useRsvp();
   const { user } = useAuth();
 
   if (isLoading) return <p>Loading…</p>;
+  if (!Number.isFinite(eventId) || (isError && isNotFound(error))) {
+    return <NotFoundPage message="That event doesn't exist." />;
+  }
   if (isError || !event) {
     return (
       <main>
-        <p role="alert">Event not found.</p>
+        <p role="alert">Couldn't load this event.</p>
         <Link to="/">Back to board</Link>
       </main>
     );

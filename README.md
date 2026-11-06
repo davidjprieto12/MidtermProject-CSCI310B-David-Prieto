@@ -105,6 +105,8 @@ Hangout Board is a full-stack web application meant to address the least fun par
 
 
 ## Rubric Map
+### TODO: Update before submission
+
 ### 1. Django Backend Architecture & Database
 * Implementation of Django models, migrations, and model relationships: [/backend/events](/backend/events) contains the event, RSVP, and comment models and their migrations; [/backend/accounts](/backend/accounts) contains account models and migrations.
 * Efficient query design: [/backend/events](/backend/events) uses annotated and related querysets for event lists and related activity/comments.
@@ -123,8 +125,8 @@ Hangout Board is a full-stack web application meant to address the least fun par
 * Asynchronous network layering & custom React Query hooks: [/frontend/src/api](/frontend/src/api) separates network calls; [/frontend/src/hooks](/frontend/src/hooks) wraps them in query and mutation hooks.
 
 ### 5. Error Handling, UI, & Resilience
-* Front-end handling of API error codes: [/frontend/src/api](/frontend/src/api) handles common HTTP failures, and [/frontend/src/utils](/frontend/src/utils) parses API errors for forms and actions.
-* Back-end protection and database transaction management: [/backend/events](/backend/events) validates workflow rules and uses atomic transactions for status changes, activity logs, and RSVPs.
+* Front-end handling of API error codes: [/frontend/src/api](/frontend/src/api) handles common HTTP failures, and [/frontend/src/utils](/frontend/src/utils) parses API errors for forms and actions. 
+* Back-end protection and database transaction management: [/backend/events](/backend/events) validates workflow rules and uses atomic transactions for status changes, activity logs, and RSVPs. 
 * Clean layout: [/frontend/src/components](/frontend/src/components), [/frontend/src/pages](/frontend/src/pages), and [/frontend/src](/frontend/src) styles support a consistent UI.
 
 ### 6. Project Organization & Git Workflow

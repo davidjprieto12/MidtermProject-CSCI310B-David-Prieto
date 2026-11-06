@@ -4,6 +4,7 @@ import { NewEventPage } from "./pages/NewEventPage";
 import { EventDetailPage } from "./pages/EventDetailPage";
 import { LoginPage } from "./pages/LoginPage";
 import { EditEventPage } from "./pages/EditEventPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
       <Route path="/events/new" element={<NewEventPage/>} />
       <Route path="/events/:id" element={<EventDetailPage />} />
       <Route path="/events/:id/edit" element={<EditEventPage/>} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
