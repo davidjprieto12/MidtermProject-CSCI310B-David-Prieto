@@ -24,7 +24,7 @@ export function EventDetailPage() {
   }
   if (isError || !event) {
     return (
-      <main>
+      <main className="event-detail">
         <p role="alert">Couldn't load this event.</p>
         <Link to="/">Back to board</Link>
       </main>
@@ -34,22 +34,24 @@ export function EventDetailPage() {
   const canEdit = user?.role === "admin" || event.created_by === user?.id;
 
   return (
-    <main>
+    <main className="event-detail">
       <Link to="/">← Back to board</Link>
       <h1>{event.title}</h1>
-      {event.creator && <p>Created by {displayName(event.creator)}</p>}
       {canEdit && <Link to={`/events/${event.id}/edit`}>Edit</Link>}
-      <p>Status: {STATUS_LABELS[event.status]}</p>
-      <StatusSelect
-        eventId={event.id}
-        status={event.status}
-        onChange={(eventId, status) => changeStatus.mutate({ id: eventId, status })}
-        disabled={changeStatus.isPending}
-      />
-      <p>{event.starts_at ? new Date(event.starts_at).toLocaleString() : "Date TBD"}</p>
-      {event.location && <p>Where: {event.location}</p>}
-      {event.description && <p>{event.description}</p>}
-      {event.max_attendees !== null && <p>Capacity: {event.max_attendees}</p>}
+      <section className="event-overview" aria-label="Event details">
+        {event.creator && <p>Created by {displayName(event.creator)}</p>}
+        <p>Status: {STATUS_LABELS[event.status]}</p>
+        <StatusSelect
+          eventId={event.id}
+          status={event.status}
+          onChange={(eventId, status) => changeStatus.mutate({ id: eventId, status })}
+          disabled={changeStatus.isPending}
+        />
+        <p>Date &amp; Time: {event.starts_at ? new Date(event.starts_at).toLocaleString() : "TBD"}</p>
+        {event.location && <p>Where: {event.location}</p>}
+        {event.description && <p>{event.description}</p>}
+        {event.max_attendees !== null && <p>Capacity: {event.max_attendees}</p>}
+      </section>
       <RsvpButtons
         status={event.status}
         myRsvp={event.my_rsvp}

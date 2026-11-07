@@ -49,7 +49,7 @@ export function LoginPage() {
   };
 
   return (
-    <main>
+    <main className="login-page">
       <h1>Hangout Board</h1>
       <form onSubmit={handleSubmit}>
         <h2>{mode === "login" ? "Log in" : "Create account"}</h2>

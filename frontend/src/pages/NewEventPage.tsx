@@ -22,7 +22,7 @@ export function NewEventPage() {
     <main>
       <h1>New event</h1>
       <Link to="/">Back to board</Link>
-      <EventForm onSubmit={handleSubmit} submitting={createEvent.isPending} fieldErrors={fieldErrors} submitLabel="Create event"/>
+      <EventForm onSubmit={handleSubmit} submitting={createEvent.isPending} fieldErrors={fieldErrors} submitLabel="Create Event"/>
     </main>
   );
 }

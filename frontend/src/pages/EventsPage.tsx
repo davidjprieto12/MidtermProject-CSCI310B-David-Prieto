@@ -42,9 +42,9 @@ export function EventsPage() {
         <h1>Hangout Board</h1>
         <div>
           <span>{user?.display_name || user?.username}</span>
-          <Link to="/events/new">New event</Link>
+          <Link to="/events/new">New Event</Link>
           <button type="button" onClick={logout}>
-            Log out
+            Log Out
           </button>
         </div>
       </header>
