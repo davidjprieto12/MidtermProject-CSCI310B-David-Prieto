@@ -57,6 +57,7 @@ Hangout Board is a full-stack web application meant to address the least fun par
     > python manage.py shell
     > from accounts.models import User
     > u = User.objects.get(username="(enter username here)"); u.role = "admin"; u.save()
+    > exit()
     > ```
     - Optionally, you may also add artificial / seed data using the following command:
     >```bash
@@ -66,11 +67,6 @@ Hangout Board is a full-stack web application meant to address the least fun par
     - `demo_admin` (admin), `demo_alex`, `demo_sam`, `demo_jordan` (members)
     - Password for all: `demo1234` (for class demo use only)
     - Re-running `seed_data` resets the demo events back to their starting state
-
-    - To exit:
-    >```bash
-    > exit()
-    > ```
 
 - **Optional: Seed Data:**
     - Here is a developer function that I implemented to add artificial data to the database, so that you can test with it instead of having to make the scenarios
