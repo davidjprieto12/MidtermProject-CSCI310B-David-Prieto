@@ -68,14 +68,6 @@ Hangout Board is a full-stack web application meant to address the least fun par
     - Password for all: `demo1234` (for class demo use only)
     - Re-running `seed_data` resets the demo events back to their starting state
 
-- **Optional: Seed Data:**
-    - Here is a developer function that I implemented to add artificial data to the database, so that you can test with it instead of having to make the scenarios
-    > ```bash
-    > cd backend
-    > venv\Scripts\activate                # macOS/Linux: source venv/bin/activate
-    > python manage.py seed_data
-    > ```
-
 ## Tests
 > ```bash
 > cd backend
