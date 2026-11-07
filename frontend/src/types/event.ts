@@ -28,3 +28,10 @@ export interface EventInput {
 }
 
 export type RsvpResponse = "going" | "maybe" | "no";
+
+export interface EventFilters {
+    search: string;
+    status: EventStatus | ""; // where "" means all statuses
+}
+
+export const EMPTY_FILTERS: EventFilters = { search: "", status: "" };

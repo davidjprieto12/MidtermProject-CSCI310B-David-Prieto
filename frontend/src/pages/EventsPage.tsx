@@ -1,14 +1,29 @@
+import { useState } from "react";
 import { useEvents, useDeleteEvent, useChangeStatus } from "../hooks/useEvents";
 import { Board } from "../components/Board";
 import { useAuth } from "../hooks/useAuth";
 import { Link } from "react-router-dom";
-import type { EventStatus, HangoutEvent } from "../types/event";
+import { FilterBar } from "../components/FilterBar";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import {
+  EMPTY_FILTERS,
+  type EventFilters,
+  type EventStatus,
+  type HangoutEvent,
+} from "../types/event"; 
 
 export function EventsPage() {
     const { user, logout } = useAuth();
-    const { data, isLoading, isError, refetch } = useEvents();
+    const [filters, setFilters] = useState<EventFilters>(EMPTY_FILTERS);
+    const debouncedSearch = useDebouncedValue(filters.search);
+    const { data, isLoading, isError, refetch } = useEvents({
+      ...filters,
+      search: debouncedSearch,
+    });
     const deleteEvent = useDeleteEvent();
     const changeStatus = useChangeStatus();
+
+    const hasFilters = filters.search.trim() !== "" || filters.status !== "";
 
     const canDelete = (event: HangoutEvent) => 
         user?.role === "admin" || event.created_by === user?.id;
@@ -34,6 +49,8 @@ export function EventsPage() {
         </div>
       </header>
 
+      <FilterBar filters={filters} onChange={setFilters} />
+
       {isLoading && <p>Loading…</p>}
       {isError && (
         <div role="alert">
@@ -42,6 +59,9 @@ export function EventsPage() {
             Try again
           </button>
         </div>
+      )}
+      {data && data.length === 0 && (
+        <p>{hasFilters ? "No events match your filters." : "No events yet."}</p>
       )}
       {data && (
         <Board

@@ -1,14 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { eventsApi } from "../api/events";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { parseApiError } from "../utils/errors";
 import { STATUS_LABELS } from "../types/status";
-import type { EventStatus, RsvpResponse, EventInput } from "../types/event";
+import type { EventStatus, RsvpResponse, EventInput, EventFilters } from "../types/event";
+import { EMPTY_FILTERS } from "../types/event";
 
-// Fetches the whole list
-export const useEvents = () =>
-    useQuery({ queryKey: ["events"], queryFn: eventsApi.list });
+// Fetches a list of events
+export const useEvents = (filters: EventFilters = EMPTY_FILTERS) =>
+  useQuery({
+    queryKey: ["events", filters],
+    queryFn: () => eventsApi.list(filters),
+    placeholderData: keepPreviousData,
+  });
 
 // Fetches one single and specific event
 export const useEvent = (id: number) =>
